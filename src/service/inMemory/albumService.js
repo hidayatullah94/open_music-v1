@@ -1,79 +1,76 @@
-const {nanoid} = require("nanoid")
-const NotFoundError = require("../../exception/notFoundError");
-const InvariantError = require("../../exception/invariantError");
-
+const { nanoid } = require('nanoid');
+const NotFoundError = require('../../exception/notFoundError');
+const InvariantError = require('../../exception/invariantError');
 
 class AlbumService {
-    constructor(){
-        this._albums = [];
+  constructor() {
+    this._albums = [];
+  }
+
+  // add album
+  addAlbum({ name, year }) {
+    const id = nanoid(16);
+
+    const newAlbum = {
+      id,
+      name,
+      year,
+    };
+
+    this._albums.push(newAlbum);
+
+    // validasi add success
+
+    const isSucces = this._albums.filter((a) => a.id === id).length > 0;
+
+    if (!isSucces) {
+      throw new InvariantError('Album gagal ditambahkan');
     }
 
-    // add album
-    addAlbum ({name, year}){
-        const id = nanoid(16);
+    return id;
+  }
 
-        const newAlbum = {
-            id,
-            name,
-            year
-        }
+  // get all album
+  getAlbum() {
+    return this._albums;
+  }
 
-        this._albums.push(newAlbum);
+  // get album by id
+  getAlbumById(id) {
+    const album = this._albums.filter((a) => a.id === id)[0];
 
-        //validasi add success
-
-        const isSucces = this._albums.filter( a => a.id === id).length > 0;
-
-        if(!isSucces){
-            throw new  InvariantError('Album gagal ditambahkan');
-        }
-
-        return id;
-
+    if (!album) {
+      throw new NotFoundError('Album tidak ditemukan');
     }
 
-    // get all album
-    getAlbum(){
-        return this._albums;
+    return album;
+  }
+
+  // edit album
+  editAlbum(id, { name, year }) {
+    const index = this._albums.findIndex((a) => a.id === id);
+
+    if (index === -1) {
+      throw new NotFoundError('Gagal memperbarui album, Id tidak ditemukan');
     }
 
-    // get album by id
-    getAlbumById(id){
-        const album = this._albums.filter(a => a.id === id)[0];
+    this._albums[index] = {
+      ...this._albums[index],
+      name,
+      year,
+    };
+  }
 
-        if(!album){
-            throw new NotFoundError('Album tidak ditemukan');
-        }
+  // delete album
+  deleteAlbum(id) {
+    const index = this._albums.findIndex((a) => a.id === id);
 
-        return album;
+    if (index === -1) {
+      throw new NotFoundError('Album gagal dihapus, Id tidak ditemukan');
     }
 
-    // edit album 
-    editAlbum (id, {name, year}){
-        const index = this._albums.findIndex(a => a.id === id);
-
-        if (index === -1){
-            throw new NotFoundError('Gagal memperbarui album, Id tidak ditemukan');
-        }
-
-        this._albums[index] = {
-            ...this._albums[index],
-            name,
-            year
-        };
-
-    }
-
-    //delete album
-    deleteAlbum(id){
-        const index = this._albums.findIndex(a => a.id === id);
-
-        if (index === -1){
-            throw new NotFoundError('Album gagal dihapus, Id tidak ditemukan')
-        }
-
-        this._albums.splice(index, 1);
-    }
-} 
+    this._albums.splice(index, 1);
+  }
+}
 
 module.exports = AlbumService;
